@@ -1,0 +1,61 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
+_LIBFUSE_THREADED_COPTS = [
+    "-D_FILE_OFFSET_BITS=64",
+]
+
+# Tests that link against libfuse + threads
+[cc_binary(
+    name = name,
+    srcs = [name + ".c"],
+    copts = _LIBFUSE_THREADED_COPTS,
+    linkopts = ["-lpthread"],
+    deps = ["//:libfuse3"],
+) for name in [
+    "test_write_cache",
+    "test_setattr",
+    "hello",
+]]
+
+# Tests that only need include dirs, no libfuse linking
+cc_binary(
+    name = "test_syscalls",
+    srcs = ["test_syscalls.c"],
+    copts = [
+        "-D_FILE_OFFSET_BITS=64",
+        "-DHAVE_LIBFUSE_PRIVATE_CONFIG_H",
+    ],
+    deps = [
+        "//bazel:fuse_config",
+    ],
+)
+
+cc_binary(
+    name = "readdir_inode",
+    srcs = ["readdir_inode.c"],
+    copts = ["-D_FILE_OFFSET_BITS=64"],
+)
+
+# Tests that link against libfuse (no extra thread dep)
+[cc_binary(
+    name = name,
+    srcs = [name + ".c"],
+    copts = _LIBFUSE_THREADED_COPTS,
+    deps = ["//:libfuse3"],
+) for name in [
+    "release_unlink_race",
+    "test_want_conversion",
+    "test_abi",
+]]
+
+# Tests that link against libfuse + threads
+[cc_binary(
+    name = name,
+    srcs = [name + ".c"],
+    copts = _LIBFUSE_THREADED_COPTS,
+    linkopts = ["-lpthread"],
+    deps = ["//:libfuse3"],
+) for name in [
+    "test_signals",
+    "test_teardown_watchdog",
+]]

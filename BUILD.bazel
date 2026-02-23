@@ -1,0 +1,100 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+exports_files(
+    ["lib/fuse_versionscript"],
+    visibility = ["//visibility:public"],
+)
+
+# Shared utility sources used by both libfuse3 and fusermount3.
+cc_library(
+    name = "fuse_util",
+    srcs = [
+        "lib/mount_util.c",
+        "lib/util.c",
+    ],
+    hdrs = [
+        "include/fuse_common.h",
+        "include/fuse_log.h",
+        "include/fuse_lowlevel.h",
+        "include/fuse_mount_compat.h",
+        "include/fuse_opt.h",
+        "lib/mount_util.h",
+        "lib/util.h",
+    ],
+    copts = [
+        "-D_REENTRANT",
+        "-DHAVE_LIBFUSE_PRIVATE_CONFIG_H",
+        "-D_FILE_OFFSET_BITS=64",
+        "-Wno-sign-compare",
+        "-fno-strict-aliasing",
+    ],
+    includes = [
+        "include",
+        "lib",
+    ],
+    visibility = ["//util:__pkg__"],
+    deps = [
+        "//bazel:fuse_config",
+    ],
+)
+
+cc_library(
+    name = "libfuse3",
+    srcs = [
+        "lib/buffer.c",
+        "lib/compat.c",
+        "lib/cuse_lowlevel.c",
+        "lib/fuse.c",
+        "lib/fuse_log.c",
+        "lib/fuse_loop.c",
+        "lib/fuse_loop_mt.c",
+        "lib/fuse_lowlevel.c",
+        "lib/fuse_opt.c",
+        "lib/fuse_signals.c",
+        "lib/helper.c",
+        "lib/modules/subdir.c",
+        "lib/mount.c",
+        "lib/mount_util.c",
+        "lib/util.c",
+        "lib/fuse_i.h",
+        "lib/fuse_misc.h",
+        "lib/fuse_uring_i.h",
+        "lib/mount_util.h",
+        "lib/usdt.h",
+        "lib/util.h",
+    ],
+    hdrs = [
+        "include/cuse_lowlevel.h",
+        "include/fuse.h",
+        "include/fuse_common.h",
+        "include/fuse_kernel.h",
+        "include/fuse_log.h",
+        "include/fuse_lowlevel.h",
+        "include/fuse_mount_compat.h",
+        "include/fuse_opt.h",
+    ],
+    additional_linker_inputs = ["lib/fuse_versionscript"],
+    copts = [
+        "-D_REENTRANT",
+        "-DHAVE_LIBFUSE_PRIVATE_CONFIG_H",
+        "-D_FILE_OFFSET_BITS=64",
+        "-DFUSE_USE_VERSION=317",
+        "-DFUSERMOUNT_DIR=\\\"/usr/local/bin\\\"",
+        "-Wno-sign-compare",
+        "-fno-strict-aliasing",
+    ],
+    includes = [
+        "include",
+        "lib",
+    ],
+    linkopts = [
+        "-lpthread",
+        "-ldl",
+        "-lrt",
+        "-Wl,--version-script,$(location lib/fuse_versionscript)",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//bazel:fuse_config",
+    ],
+)

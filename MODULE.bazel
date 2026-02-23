@@ -1,0 +1,6 @@
+module(
+    name = "libfuse3",
+    version = "3.19.0-rc0",
+)
+
+bazel_dep(name = "rules_cc", version = "0.2.14")

@@ -1,0 +1,27 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
+cc_binary(
+    name = "fusermount3",
+    srcs = ["fusermount.c"],
+    copts = [
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_REENTRANT",
+        "-DHAVE_LIBFUSE_PRIVATE_CONFIG_H",
+        "-DFUSE_CONF=\\\"/usr/local/etc/fuse.conf\\\"",
+        "-Wno-sign-compare",
+        "-fno-strict-aliasing",
+    ],
+    deps = [
+        "//:fuse_util",
+    ],
+)
+
+cc_binary(
+    name = "mount.fuse3",
+    srcs = ["mount.fuse.c"],
+    copts = [
+        "-D_FILE_OFFSET_BITS=64",
+        "-DFUSE_USE_VERSION=317",
+    ],
+    deps = ["//:libfuse3"],
+)

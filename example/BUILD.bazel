@@ -1,0 +1,95 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+
+_COMMON_COPTS = [
+    "-D_FILE_OFFSET_BITS=64",
+]
+
+# Simple (non-threaded) examples — no extra headers needed
+[cc_binary(
+    name = name,
+    srcs = [name + ".c"],
+    copts = _COMMON_COPTS,
+    deps = ["//:libfuse3"],
+) for name in [
+    "hello",
+    "hello_ll",
+    "printcap",
+    "poll_client",
+]]
+
+# Examples that need passthrough_helpers.h
+[cc_binary(
+    name = name,
+    srcs = [name + ".c", "passthrough_helpers.h"],
+    copts = _COMMON_COPTS,
+    deps = ["//:libfuse3"],
+) for name in [
+    "passthrough",
+    "passthrough_fh",
+]]
+
+# Examples that need ioctl.h
+[cc_binary(
+    name = name,
+    srcs = [name + ".c", "ioctl.h"],
+    copts = _COMMON_COPTS,
+    deps = ["//:libfuse3"],
+) for name in [
+    "ioctl_client",
+    "ioctl_ll_client",
+    "ioctl",
+    "ioctl_ll",
+    "cuse",
+    "cuse_client",
+]]
+
+# Linux-only examples
+cc_binary(
+    name = "passthrough_ll",
+    srcs = ["passthrough_ll.c", "passthrough_helpers.h"],
+    copts = _COMMON_COPTS,
+    deps = ["//:libfuse3"],
+)
+
+[cc_binary(
+    name = name,
+    srcs = [name + ".c"],
+    copts = _COMMON_COPTS,
+    deps = ["//:libfuse3"],
+) for name in [
+    "hello_ll_uds",
+    "null",
+]]
+
+# Threaded examples
+[cc_binary(
+    name = name,
+    srcs = [name + ".c"],
+    copts = _COMMON_COPTS,
+    linkopts = ["-lpthread"],
+    deps = ["//:libfuse3"],
+) for name in [
+    "notify_inval_inode",
+    "invalidate_path",
+    "notify_store_retrieve",
+    "notify_inval_entry",
+    "poll",
+    "notify_prune",
+]]
+
+# C++ examples
+cc_binary(
+    name = "passthrough_hp",
+    srcs = ["passthrough_hp.cc", "passthrough_helpers.h", "cxxopts.hpp"],
+    copts = _COMMON_COPTS + ["-std=c++20"],
+    linkopts = ["-lpthread"],
+    deps = ["//:libfuse3"],
+)
+
+cc_binary(
+    name = "memfs_ll",
+    srcs = ["memfs_ll.cc"],
+    copts = _COMMON_COPTS + ["-std=c++20"],
+    linkopts = ["-lpthread"],
+    deps = ["//:libfuse3"],
+)
